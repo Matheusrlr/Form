@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulário</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.mask/1.14.10/jquery.mask.js"></script>
+    
+
+    <style>
+        body{
+            padding: 2rem 10rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        #content{
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+        }
+        #content input{
+            margin-bottom: 1rem;
+        }
+        #redesociais{
+            visibility: hidden;
+        }
+        input{
+            border: 1px solid #ccc
+        }
+        select{
+            border: none;   
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button{
+            border: none;
+            width: 5rem;
+            font-size: 1rem;
+            color: white;
+            height: 1.5rem;
+            background: #4169E1;
+            border-radius: 5px;
+        }
+        form{
+            background: #66CDAA;
+            padding: 1rem;
+            border-radius: 5px;
+            width: 25%;
+        }
+        #warn{
+            color:red;
+        }
+
+    </style>
+    <script>
+            $(document).ready(function(){
+      
+                $("#phone").mask("99-999999999");
+                
+                $("#yes").change(function(){
+                    $("#redesociais").css("visibility", "visible");
+                });
+
+                $("#no").change(function(){
+                    $("#redesociais").css("visibility", "hidden");
+                });
+
+                $("form").submit(function(e){
+                    let nome = $("#name").val()
+                    let phone = $("#phone").val()
+                    let conheceu = $("info").val()
+                    let redesocial = $('input[name=redesociais]:checked').val()
+                    let rede = []
+
+                    if( nome.split(' ').length < 2 ){
+                        $("#name").css("border", "1px solid red");
+                        $("#name").prev().css("color", "red");
+                        $("#warn").append(" <div>*Insira nome e sobrenome</div> ")
+                    }else if( phone.length < 11  ){
+                        $("#phone").css("border", "1px solid red");
+                        $("#phone").prev().css("color", "red");
+                        $("#warn").append(" <div>*Formato de telefone incorreto</div> ")
+                    }else{
+                        if( redesocial == 'yes' ){
+                            if ( $('#face').is(":checked") ) {
+                                rede.push($('#face').val())
+                            }
+                            if ( $('#linke').is(":checked") ) {
+                                rede.push($('#linke').val())
+                            }
+                            if ( $('#insta').is(":checked") ) {
+                                rede.push($('#insta').val())
+                            }
+                        }
+                        
+                        $.ajax({
+                            url: "localhost:8080",
+                            method: "POST",
+                            data: {
+                                nome: nome,
+                                telefone: phone,
+                                onde_conheceu: conheceu,
+                                redes_sociais: rede
+                            },
+                            success: function(result){
+                                $("#enviar").attr("disabled", true);
+                            },
+                            error: function (request, status, error) {
+                                alert("Erro ao fazer requisilção.");
+                            }
+                        });
+                    }
+                    e.preventDefault();
+                });
+            });
+        
+        </script>
+</head>
+
+<body>
+        <form action='localhost:8080' method="POST">        
+                <div id='warn'>
+
+                </div>
+                <div id="content">
+
+                    <label for="name">Nome:</label>
+                    <input id="name" type="text" name="name">
+                
+                    <label for="phone">Telefone:</label>
+                    <input id="phone" type="text" name="phone">
+                
+                    <label for="info">Como nos conheceu:</label>
+                    <select id="info" name="info">
+                    <option>Tv</option>
+                    <option>Internet</option>
+                    <option>Outros</option>
+                    </select>
+                
+    
+                    <div>
+                        <label for="y">Possui rede social:</label>
+                        <input type="radio" id="yes" name="redesociais" value='yes'>
+                        <label for="yes">Sim</label>
+                        <input type="radio" id="no" name="redesociais" value='no'>
+                        <label for="no">Não</label>
+                    </div>
+                
+                </div>
+
+                <div id="redesociais">
+                    <input type="checkbox" id="face" value="Facebook">
+                    <label for="face">Facebook</label>
+                    <input type="checkbox" id="linke" value="Linkedin">
+                    <label for="link">Linkedin</label>
+                    <input type="checkbox" id="insta" value="Instagram">
+                    <label for="insta">Instagram</label>
+                </div>
+                
+                
+                <button id="enviar">Enviar</button>
+                
+</form>
+</body>
+<script src="script.js"></script>
+</html>
